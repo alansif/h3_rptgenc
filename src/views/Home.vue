@@ -105,11 +105,19 @@
 		<v-stepper-items>
 			<v-stepper-content step="6">
 				<v-card max-width="400" class="mx-auto pa-4 text-center" flat>
-					<v-btn x-large color="primary" @click="gen">生成报告</v-btn>
+					<v-btn x-large rounded color="primary" elevation="6" width="200" :loading="loading" @click="gen">生成报告</v-btn>
 				</v-card>
 			</v-stepper-content>
 		</v-stepper-items>
 		<v-snackbar v-model="snackbar" color="blue lighten-1" top>无符合条件的记录</v-snackbar>
+		<v-dialog v-model="loading" persistent width="400">
+			<v-card color="primary" dark>
+				<v-card-text class="pt-4">
+					正在生成报告...
+					<v-progress-linear indeterminate color="white" class="mb-0"/>
+				</v-card-text>
+			</v-card>
+		</v-dialog>		
 	</v-stepper>
 </template>
 
@@ -120,6 +128,7 @@ import FilePondPluginImagePreview from 'filepond-plugin-image-preview/dist/filep
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 const FilePond = vueFilePond( FilePondPluginFileValidateType, FilePondPluginImagePreview );
+import fileDownload from 'js-file-download';
 
 export default {
 	data() {
@@ -139,7 +148,8 @@ export default {
 			psex: '',
 			pexamdate: '',
 			pedscp: [],
-			snackbar: false
+			snackbar: false,
+			loading: false
 		}
 	},
 	methods: {
@@ -183,19 +193,20 @@ export default {
 			};
 			for(let i = 0; i <5; ++i) {
 				const f = this.$refs['fp'+(i+1)].getFiles();
-//				f.forEach(v => console.log(v));
-				rptparams.files.push(f.map(v => ({id:JSON.parse(v.serverId)[0], ext:v.fileExtension}) ));
+				rptparams.files.push(f.map(v => ({id:v.serverId, ext:v.fileExtension}) ));
 			}
-//			console.log(rptparams);
-			this.$axios.post('/api/make', rptparams)
+			this.loading = true;
+			this.$axios.post('/api/make', rptparams, {responseType:'blob'})
 				.then(response => {
-//					fileDownload(response.data, fileid + '_' + n + ".docx");
-					console.log(response.data);
+					fileDownload(response.data, this.pid + this.pname +".pdf");
 				})
 				.catch(error => {
 					if (error) {
 						console.dir(error);
 					}
+				})
+				.finally(() => {
+					this.loading = false;
 				});
 		},
 		updatefiles() {
