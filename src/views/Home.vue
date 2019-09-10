@@ -159,11 +159,15 @@ export default {
 					pid: this.pid
 				}})
 				.then(response => {
-					const items = response.data;
+					const items = response.data.info;
 					if (items.length === 0) {
 						this.snackbar = true;
 					} else {
 						this.showItems(items);
+						for(let i = 0; i <5; ++i) {
+							let p = 'files/' + (i+1) + '/';
+							response.data.files[i].forEach(f => this.$refs['fp'+(i+1)].addFiles(p + f, {type: 'local'}));
+						}
 					}
 				})
 				.catch(error => {
