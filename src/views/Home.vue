@@ -154,6 +154,7 @@ export default {
 	},
 	methods: {
 		search() {
+			this.clearfiles();
 			if (this.pid.length === 0) return;
 			this.$axios.get('/api/query',{params:{
 					pid: this.pid
@@ -219,6 +220,13 @@ export default {
 			this.hasfile3 = this.$refs['fp3'] && (this.$refs['fp3'].getFiles().length > 0);
 			this.hasfile4 = this.$refs['fp4'] && (this.$refs['fp4'].getFiles().length > 0);
 			this.hasfile5 = this.$refs['fp5'] && (this.$refs['fp5'].getFiles().length > 0);
+		},
+		clearfiles() {
+			this.$refs['fp1'].removeFiles();
+			this.$refs['fp2'].removeFiles();
+			this.$refs['fp3'].removeFiles();
+			this.$refs['fp4'].removeFiles();
+			this.$refs['fp5'].removeFiles();
 		}
 	},
 	components: {
